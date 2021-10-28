@@ -5,11 +5,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 
+
+/**Utilizar um (vai ser um campo da class) bloco batch com 1 counter 2 message 3 condição (sempre diferente para cada novo pedido)
+ * fazer signal para desloquear o método waitForMessage*/
+
+
 public class MessageBox<T> {
 
     private static class Request<T> {
         public T message = null;
         public final Condition condition;
+        public int counter = 0;
 
         public Request(Lock lock) {
             condition = lock.newCondition();
@@ -95,6 +101,11 @@ public class MessageBox<T> {
 
 
 
+                //not sure about this one
+                request.value.counter++;
+
+
+
 
 
                 /**the only case that requests is empty and need to be signaled*/
@@ -117,5 +128,9 @@ public class MessageBox<T> {
             monitor.unlock();
         }
         throw new UnsupportedOperationException("sendToAll return is not done");
+    }
+
+    public void broadcast () {
+
     }
 }
