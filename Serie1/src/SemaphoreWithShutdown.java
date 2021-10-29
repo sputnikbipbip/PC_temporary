@@ -44,14 +44,16 @@ public class SemaphoreWithShutdown {
     }
 
     /**
-     * @return boolean {false -> if termination is due to reach timeout} */
+     * @return boolean {false -> if termination is due to reach timeout}
+     *
+     * tenho que esperar pelo waitset quando não há unidades, se existe await têm que existir notify*/
     public boolean acquireSingle(long timeout)
             throws InterruptedException, CancellationException {
         monitor.lock();
         try {
             // non blocking path
-            if (!requests.isEmpty() && currentUnits >= requests.pull().value.units) {
-                currentUnits -= requests.pull().value.units;
+            if (!requests.isEmpty() && currentUnits >= requests.getHeadValue().units) {
+                currentUnits -= requests.getHeadValue().units;
                 return true;
             }
             if (timeout == 0) {
@@ -89,11 +91,18 @@ public class SemaphoreWithShutdown {
         finally {
             monitor.unlock();
         }
-        throw new UnsupportedOperationException("acquireSingle not implemented");
     }
 
     public void releaseSingle() {
         /**Launch IllegalStateException*/
+        monitor.lock();
+        try {
+
+        } catch (IllegalStateException e) {
+
+        } finally {
+            monitor.unlock();
+        }
 
     }
 
@@ -119,8 +128,7 @@ public class SemaphoreWithShutdown {
     private void notifyWaiters() {
         while ( !requests.isEmpty() && currentUnits >= requests.getHeadValue().units) {
             Request req = requests.pull().value;
-            requests.remove(req);
-            permits -= req.units;
+            currentUnits -= req.units;
             req.complete();
         }
     }

@@ -101,7 +101,7 @@ public class MessageBox<T> {
 
 
 
-                //not sure about this one
+                //not sure about this one, número de threads que consomem
                 request.value.counter++;
 
 
